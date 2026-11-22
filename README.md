@@ -1,2 +1,4 @@
 # atc-simulator
 I made this ATC simulator because I thought it would be fun to try building an airport management game. You can control aircraft, give taxi and takeoff instructions, manage runway crossings, and coordinate ground services like fuel trucks and jetways. I started this project while learning how to code, so it has been a fun way to experiment with JavaScript and build something more complicated than I had tried before. I also didn't really know what to make and I was playing a atc sim game on my phone while brainstorming.
+<img width="1584" height="760" alt="image" src="https://github.com/user-attachments/assets/9ebaead3-5c11-408b-bc6f-427846a19ddc" />
+
