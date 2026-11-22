@@ -1,11 +1,15 @@
+
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
+
+canvas.width = 1000;
+canvas.height = 650;
 
 var selectedAircraft = null;
 var lastFrame = 0;
 
 function selectAircraft(id) {
-    selectAircraft = aircraft.find(p => p.id === id) || null;
+    selectedAircraft = aircraft.find(p => p.id === id) || null;
 
     renderAircraftList();
     renderFlightInfo();
@@ -19,7 +23,8 @@ function renderAircraftList() {
         const button = document.createElement("button");
 
         button.className = "aircraft-entry";
-        if (selectAircraft === plane) {
+
+        if (selectedAircraft === plane) {
             button.classList.add("selected");
         }
 
@@ -29,7 +34,7 @@ function renderAircraftList() {
         `;
 
         button.addEventListener("click", () => {
-            selectedAircraft(plane.id);
+            selectAircraft(plane.id);
         });
 
         list.appendChild(button);
@@ -39,14 +44,14 @@ function renderAircraftList() {
 function renderFlightInfo() {
     const info = document.getElementById("flightInfo");
 
-    if (selectedAircraft) {
-        info.textContent = "Select an aircraft";
+    if (!selectedAircraft) {
+        info.textContent = "SELECT AN AIRCRAFT";
         return;
     }
 
     const p = selectedAircraft;
 
-     info.innerHTML = `
+    info.innerHTML = `
         <strong>${p.id}</strong>
         <p>Airline: ${p.airline}</p>
         <p>Aircraft: ${p.type}</p>
@@ -54,13 +59,12 @@ function renderFlightInfo() {
         <p>Status: <span class="status">${p.status}</span></p>
         <p>Ground speed: ${p.speed} knots</p>
     `;
-
 }
 
 document.querySelectorAll("[data-command]").forEach(button => {
     button.addEventListener("click", () => {
         issueATCCommand(
-            selectAircraft,
+            selectedAircraft,
             button.dataset.command
         );
     });
@@ -68,8 +72,9 @@ document.querySelectorAll("[data-command]").forEach(button => {
 
 canvas.addEventListener("click", event => {
     const rect = canvas.getBoundingClientRect();
+
     const x = (event.clientX - rect.left) * canvas.width / rect.width;
-    const Y = (event.clientY - rect.top) * canvas.height / rect.height;
+    const y = (event.clientY - rect.top) * canvas.height / rect.height;
 
     let closest = null;
     let closestDistance = 30;
@@ -82,7 +87,7 @@ canvas.addEventListener("click", event => {
 
         if (distance < closestDistance) {
             closest = plane;
-            closestDistance=distance;
+            closestDistance = distance;
         }
     });
 
@@ -94,23 +99,33 @@ canvas.addEventListener("click", event => {
 function gameLoop(timestamp) {
     const dt = Math.min((timestamp - lastFrame) / 1000, 0.05);
     lastFrame = timestamp;
+
     updateAircraft(dt);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawAirport(ctx);
+
     aircraft.forEach(plane => {
         drawAircraft(
             ctx,
             plane,
-            selectAircraft === plane
+            selectedAircraft === plane
         );
     });
+
+    renderAircraftList();
+
+    if (selectedAircraft) {
+        renderFlightInfo();
+    }
 
     requestAnimationFrame(gameLoop);
 }
 
 function updateClock() {
     document.getElementById("clock").textContent =
-        new Date().toLocalTimeString();
+        new Date().toLocaleTimeString();
 }
 
 function startGame() {
@@ -120,8 +135,10 @@ function startGame() {
 
     renderAircraftList();
     renderFlightInfo();
+
     updateClock();
     setInterval(updateClock, 1000);
+
     requestAnimationFrame(gameLoop);
 }
 
