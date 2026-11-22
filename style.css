@@ -1,0 +1,195 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #10171c;
+    color: #dce8e8;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    height: 85px;
+    background: #19252c;
+    border-bottom: 2px solid #344952;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0 0 5px;
+    font-size: 21px;
+    letter-spacing: 3px;
+}
+
+header small {
+    color: #80a5a9;
+    letter-spacing: 1px;
+}
+
+#clock {
+    font-size: 22px;
+    font-family: monospace;
+    color: #75e3ba;
+}
+
+main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 15px;
+    padding: 15px;
+}
+
+.map-section,
+.panel {
+    background: #19252c;
+    border: 1px solid #344952;
+    border-radius: 5px;
+    padding: 12px;
+}
+
+.section-heading,
+.panel h2 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #85cbbb;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-heading span {
+    color: #69e7a6;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #536b64;
+}
+
+aside {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.panel h2 {
+    border-bottom: 1px solid #354951;
+    padding-bottom: 10px;
+    margin-top: 2px;
+}
+
+.aircraft-entry {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+    padding: 10px;
+    margin: 5px 0;
+    background: #253740;
+    color: white;
+    border: 1px solid #40545c;
+    cursor: pointer;
+}
+
+.aircraft-entry:hover,
+.aircraft-entry.selected {
+    border-color: #75e3ba;
+    background: #30474b;
+}
+
+.aircraft-entry small {
+    color: #a8c0c1;
+}
+
+#flightInfo {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.status {
+    color: #75e3ba;
+}
+
+#commandButtons {
+    display: grid;
+    gap: 8px;
+}
+
+#commandButtons button {
+    padding: 11px;
+    color: #e4eeee;
+    background: #29434a;
+    border: 1px solid #47666a;
+    cursor: pointer;
+    text-align: left;
+}
+
+#commandButtons button:hover {
+    background: #38605d;
+    border-color: #75e3ba;
+}
+
+#radioLog {
+    max-height: 220px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.radio-message {
+    padding: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid #7ba9bb;
+    background: #24343c;
+    line-height: 1.5;
+}
+
+.radio-message.ground {
+    border-color: #75e3ba;
+}
+
+.radio-message.warning {
+    border-color: #f0b75c;
+    color: #f0cf91;
+}
+
+.map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-top: 12px;
+    font-size: 11px;
+    color: #a8c0c1;
+}
+
+footer {
+    padding: 15px 25px;
+    color: #789197;
+    font-size: 10px;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+}
+
+@media (max-width: 850px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+
+    aside {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}

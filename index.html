@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Airport Ground Control</title>
+        <link rel="stylesheet" href="style.css"> 
+    </head>
+    <body>
+        <header>
+            <div>
+                <h1>Ground Control</h1>
+                <small>GROUND SIM // GROUND FREQUENCY 121.700</small>
+            </div>
+            <div id="clock">00:00:00</div>
+        </header>
+        
+        <main>
+            <section class="map-section">
+                <div class="section-heading">
+                    AIRPORT SURFACE RADAR
+                    <span>LIVE</span>
+                </div>
+                <canvas id="gameCanvas" width="1000" height="650"></canvas>
+                <div class="map-legend">
+                    <span>✈ Aircraft</span>
+                    <span>┅ Taxiway</span>
+                    <span>═ Runway</span>
+                    <span>● Selected Aircraft</span>
+                </div>
+            </section>
+            
+            <aside>
+                <section class="panel">
+                    <h2>ACTIVE AIRCRAFT</h2>
+                    <div id="aircraftList"></div>
+                </section>
+
+                <section class="panel">
+                    <h2>FLIGHT INFORMATION</h2>
+                    <div id="flight info">SELECT AN AIRCRAFT</div>
+                </section>
+                
+                <section class="panel">
+                    <h2>ATC COMMANDS</h2>
+                    <div id="commandButtons">
+                        <button data-command="taxi">TAXI TO RUNWAY 27</button>
+                        <button data-command="cross">CROSS RUNWAY 27</button>
+                        <button data-command="hold">HOLD POSITION</button>
+                        <button data-command="handoff">CONTACT TOWER</button>
+                    </div>
+                </section>
+                
+                <section class="panel">
+                    <h2>RADIO COMMUNICATIONS</h2>
+                    <div id="radioLog"></div>
+                </section>
+            </aside>
+        </main>
+        
+        <footer>
+            AIRPORT GROUND CONTROL SIMULATOR
+            <span>SIMULATION ONLY</span>
+        </footer>
+        
+        <script src="airport.js"></script>
+        <script src="aircraft.js"></script>
+        <script src="communications.js"></script>
+        <script src="atc.js"></script>
+        <script src="game.js"></script>
+    </body>
+</html>
