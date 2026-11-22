@@ -4,61 +4,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Surface Control</title>
+<title>Surface Control | KDEN</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#050707;color:#ddd;font-family:Arial, sans-serif;overflow:hidden}
-#app{height:100vh;display:grid;grid-template-columns:330px 1fr}
+body{margin:0;background:#050707;color:#eee;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-columns:330px minmax(0,1fr)}
 #sidebar{background:#505252;border-right:2px solid #171919;display:flex;flex-direction:column;min-height:0}
-.brand{height:58px;padding:12px 16px;background:#292d2d;border-bottom:1px solid #111}
-.brand strong{font-size:17px;letter-spacing:2px}
-.brand small{display:block;color:#aaa;font-size:10px;margin-top:4px;letter-spacing:1px}
-.section{padding:12px;border-bottom:1px solid #343737}
-.section h3{font-size:11px;letter-spacing:1.5px;color:#ddd;margin:0 0 10px}
-#traffic{overflow:auto;max-height:230px}
-.plane{padding:10px;margin:4px 0;background:#414545;border:1px solid #333;cursor:pointer}
+.brand{height:54px;padding:10px 15px;background:#292d2d;border-bottom:1px solid #111;flex-shrink:0}
+.brand strong{font-size:15px;letter-spacing:2px}
+.brand small{display:block;color:#aaa;font-size:9px;margin-top:5px;letter-spacing:1px}
+.section{padding:12px 10px;border-bottom:1px solid #343737;flex-shrink:0}
+.section h3{font-size:11px;letter-spacing:1.5px;color:#eee;margin:0 0 12px}
+#traffic{display:flex;flex-direction:column;gap:4px}
+.plane{padding:12px 10px;background:#414545;border:1px solid #343838;cursor:pointer;min-height:62px}
 .plane:hover{background:#626666}
-.plane.selected{border-left:4px solid #00c9df;background:#333b3c}
-.plane strong{font-size:14px}
-.plane small{display:block;color:#bbb;margin-top:5px}
-#details{font-size:12px;line-height:1.8;color:#ddd}
+.plane.selected{border-left:4px solid #00cce3;background:#343d3e}
+.plane strong{font-size:13px}
+.plane small{display:block;color:#c2c9c9;margin-top:7px;font-size:12px}
+#details{font-size:11px;line-height:1.9;color:#eee;min-height:35px}
 #details b{color:#fff}
 .commands{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-button{border:1px solid #111;background:#126779;color:#fff;padding:12px 5px;font-weight:bold;cursor:pointer;font-size:12px}
+button{border:1px solid #111;background:#126779;color:#fff;padding:11px 4px;font-weight:bold;cursor:pointer;font-size:11px;min-height:40px}
 button:hover{background:#19879b}
 button:disabled{opacity:.35;cursor:not-allowed}
 button.warn{background:#795b19}
 button.danger{background:#763333}
 button.neutral{background:#333b3c}
-#radio{flex:1;min-height:100px;overflow:auto;background:#252929;padding:10px;font-family:Consolas,monospace;font-size:11px}
-.radio-line{margin:0 0 8px;color:#c9d1d1}
+#radio{flex:1;min-height:65px;overflow:auto;background:#252929;padding:9px;font-family:Consolas,monospace;font-size:10px}
+.radio-line{margin:0 0 8px;color:#c9d1d1;line-height:1.4}
 .radio-line .time{color:#8b9b9b}
 .radio-line .station{color:#00cce3}
-#map-area{position:relative;min-width:0;background:#020404}
+#map-area{position:relative;min-width:0;background:#020404;overflow:hidden}
 canvas{width:100%;height:100%;display:block}
-#topbar{position:absolute;top:0;left:0;right:0;height:44px;background:#111b;border-bottom:1px solid #333;display:flex;align-items:center;padding:0 15px;gap:22px;font-size:11px;letter-spacing:1px;color:#bbb;pointer-events:none}
+#topbar{position:absolute;top:0;left:0;right:0;height:39px;background:#111b;border-bottom:1px solid #333;display:flex;align-items:center;padding:0 15px;gap:22px;font-size:10px;letter-spacing:1px;color:#bbb;pointer-events:none}
 #topbar strong{color:#00cce3}
 #clock{margin-left:auto}
-#toast{position:absolute;top:58px;right:15px;background:#151a1a;border:1px solid #00a7b8;padding:12px 16px;font-size:12px;display:none}
-#legend{position:absolute;bottom:30px;left:15px;background:#101515dd;border:1px solid #3b4545;padding:9px 12px;font-size:10px;color:#aaa;line-height:1.8;pointer-events:none}
+#toast{position:absolute;top:50px;right:15px;background:#151a1a;border:1px solid #00a7b8;padding:11px 15px;font-size:11px;display:none;z-index:5}
+#legend{position:absolute;bottom:29px;left:15px;background:#101515e8;border:1px solid #3b4545;padding:8px 11px;font-size:9px;color:#aaa;line-height:1.8;pointer-events:none}
 .dot{display:inline-block;width:8px;height:8px;margin-right:6px}
-#map-footer{position:absolute;bottom:0;left:0;right:0;height:25px;background:#111d;border-top:1px solid #333;display:flex;align-items:center;padding:0 12px;font-size:10px;color:#aaa;gap:20px;pointer-events:none}
+#map-footer{position:absolute;bottom:0;left:0;right:0;height:25px;background:#111d;border-top:1px solid #333;display:flex;align-items:center;padding:0 12px;font-size:9px;color:#aaa;gap:20px;pointer-events:none}
 #map-footer span:last-child{margin-left:auto}
-@media(max-width:700px){#app{grid-template-columns:270px 1fr}.commands{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){
+ #app{grid-template-columns:260px minmax(0,1fr)}
+ #topbar{gap:8px;font-size:8px;padding:0 6px}
+ .section{padding:9px 7px}
+ button{font-size:10px}
+}
 </style>
 </head>
 <body>
 <div id="app">
 <aside id="sidebar">
- <div class="brand"><strong>SURFACE CONTROL</strong><small>GROUND OPERATIONS // KDEN</small></div>
+ <div class="brand">
+  <strong>SURFACE CONTROL</strong>
+  <small>GROUND OPERATIONS // KDEN</small>
+ </div>
+
  <div class="section">
   <h3>ACTIVE TRAFFIC</h3>
   <div id="traffic"></div>
  </div>
+
  <div class="section">
   <h3>FLIGHT DATA</h3>
   <div id="details">Select an aircraft on the list or radar.</div>
  </div>
+
  <div class="section">
   <h3>GROUND INSTRUCTIONS</h3>
   <div class="commands">
@@ -72,12 +83,22 @@ canvas{width:100%;height:100%;display:block}
    <button class="danger" onclick="issue('cancel')">CANCEL ROUTE</button>
   </div>
  </div>
- <div class="section" style="padding-bottom:6px"><h3>RADIO / EVENT LOG</h3></div>
+
+ <div class="section" style="padding-bottom:6px">
+  <h3>RADIO / EVENT LOG</h3>
+ </div>
  <div id="radio"></div>
 </aside>
+
 <main id="map-area">
  <canvas id="map"></canvas>
- <div id="topbar"><strong>KDEN</strong><span>GROUND 121.700</span><span id="runway-label">RWY 09 AVAILABLE</span><span id="traffic-label">TRAFFIC 3</span><span id="clock">00:00:00</span></div>
+ <div id="topbar">
+  <strong>KDEN</strong>
+  <span>GROUND<br>121.700</span>
+  <span id="runway-label">RWY 09<br>AVAILABLE</span>
+  <span id="traffic-label">TRAFFIC 3</span>
+  <span id="clock">00:00:00</span>
+ </div>
  <div id="toast"></div>
  <div id="legend">
   <div><span class="dot" style="background:#00cce3"></span>SELECTED AIRCRAFT</div>
@@ -85,248 +106,482 @@ canvas{width:100%;height:100%;display:block}
   <div><span class="dot" style="background:#e4a72c"></span>HOLDING POINT</div>
   <div><span class="dot" style="background:#888"></span>RUNWAY / TAXIWAY</div>
  </div>
- <div id="map-footer"><span>RADAR: SURFACE</span><span>SIMULATION ACTIVE</span><span>ALL TIMES LOCAL</span></div>
+ <div id="map-footer">
+  <span>RADAR: SURFACE</span>
+  <span>SIMULATION ACTIVE</span>
+  <span>ALL TIMES LOCAL</span>
+ </div>
 </main>
 </div>
+
 <script>
-const canvas=document.getElementById("map"),ctx=canvas.getContext("2d");
-let W=0,H=0,selected=null,runwayOwner=null,last=performance.now(),simTime=0;
+const canvas=document.getElementById("map");
+const ctx=canvas.getContext("2d");
+
+let W=0,H=0;
+let selected=null;
+let runwayOwner=null;
+let lastFrame=performance.now();
+let simTime=0;
+
 const planes=[
- {id:"UAL204",type:"B737",gate:"A12",x:180,y:625,color:"#00cce3",status:"At gate",route:[],phase:"gate",speed:0},
- {id:"DAL512",type:"A320",gate:"A14",x:390,y:625,color:"#00cce3",status:"At gate",route:[],phase:"gate",speed:0},
- {id:"SWA831",type:"B738",gate:"B06",x:600,y:625,color:"#00cce3",status:"At gate",route:[],phase:"gate",speed:0}
+ {id:"UAL204",type:"B737",gate:"A12",x:180,y:625,status:"At gate",phase:"gate",route:[],speed:0},
+ {id:"DAL512",type:"A320",gate:"A14",x:390,y:625,status:"At gate",phase:"gate",route:[],speed:0},
+ {id:"SWA831",type:"B738",gate:"B06",x:600,y:625,status:"At gate",phase:"gate",route:[],speed:0}
 ];
+
 const radio=document.getElementById("radio");
-function log(msg){
- const t=document.createElement("div");t.className="radio-line";
- const time=new Date().toLocaleTimeString();
- t.innerHTML='<span class="time">'+time+'</span> <span class="station">GROUND:</span> '+msg;
- radio.prepend(t);
+
+function log(message){
+ const line=document.createElement("div");
+ line.className="radio-line";
+ line.innerHTML='<span class="time">'+new Date().toLocaleTimeString()+
+ '</span> <span class="station">GROUND:</span> '+message;
+ radio.prepend(line);
 }
-function notify(msg){
- const el=document.getElementById("toast");el.textContent=msg;el.style.display="block";
- clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.style.display="none",2300);
+
+function notify(message){
+ const el=document.getElementById("toast");
+ el.textContent=message;
+ el.style.display="block";
+ clearTimeout(notify.timer);
+ notify.timer=setTimeout(()=>el.style.display="none",2300);
 }
+
 function resize(){
- const r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;
- canvas.width=r.width*d;canvas.height=r.height*d;W=r.width;H=r.height;
- ctx.setTransform(d,0,0,d,0,0);
+ const rect=canvas.getBoundingClientRect();
+ const dpr=window.devicePixelRatio||1;
+ canvas.width=rect.width*dpr;
+ canvas.height=rect.height*dpr;
+ W=rect.width;
+ H=rect.height;
+ ctx.setTransform(dpr,0,0,dpr,0,0);
 }
-window.addEventListener("resize",resize);resize();
+window.addEventListener("resize",resize);
+resize();
+
+function X(x){return x*W/1100}
+function Y(y){return y*H/760}
 
 function drawLine(points,color,width=2,dash=[]){
- ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
- ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);
+ ctx.beginPath();
+ points.forEach((p,i)=>{
+  if(i===0)ctx.moveTo(X(p[0]),Y(p[1]));
+  else ctx.lineTo(X(p[0]),Y(p[1]));
+ });
+ ctx.strokeStyle=color;
+ ctx.lineWidth=width;
+ ctx.setLineDash(dash);
+ ctx.stroke();
+ ctx.setLineDash([]);
 }
-function drawMap(){
- ctx.fillStyle="#030606";ctx.fillRect(0,0,W,H);
- // Subtle map grid
- ctx.strokeStyle="#101818";ctx.lineWidth=1;
- for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
- for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
- // Terrain contours
- for(let i=0;i<22;i++){
-  let x=(i*137)%Math.max(1,W),y=(i*83)%Math.max(1,H);
+
+function drawTerrain(){
+ for(let i=0;i<24;i++){
+  const x=(i*137)%1100;
+  const y=(i*83)%760;
   ctx.beginPath();
-  for(let j=0;j<=24;j++){
-   let a=j/24*Math.PI*2;
-   let rx=28+(i%4)*15,ry=15+(i%5)*10;
-   let xx=x+Math.cos(a)*rx*(1+.12*Math.sin(a*3+i));
-   let yy=y+Math.sin(a)*ry*(1+.1*Math.cos(a*4));
-   if(j===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);
+  for(let j=0;j<=28;j++){
+   const a=j/28*Math.PI*2;
+   const rx=28+(i%4)*15;
+   const ry=15+(i%5)*10;
+   const xx=x+Math.cos(a)*rx*(1+.12*Math.sin(a*3+i));
+   const yy=y+Math.sin(a)*ry*(1+.1*Math.cos(a*4));
+   if(j===0)ctx.moveTo(X(xx),Y(yy));
+   else ctx.lineTo(X(xx),Y(yy));
   }
-  ctx.strokeStyle="#563b19";ctx.lineWidth=.7;ctx.stroke();
+  ctx.strokeStyle="#563b19";
+  ctx.lineWidth=.8;
+  ctx.stroke();
  }
- const sx=W/1100,sy=H/760;
- const P=(x,y)=>[x*sx,y*sy];
- // Airport apron and stands
- ctx.fillStyle="#111919";ctx.fillRect(...P(70,555),850*sx,155*sy);
- ctx.strokeStyle="#515b5b";ctx.lineWidth=1;ctx.strokeRect(70*sx,555*sy,850*sx,155*sy);
- // Gates
- for(let x of [180,390,600]){
-  drawLine([P(x,555),P(x,650)],"#5a6666",1);
-  ctx.fillStyle="#888";ctx.font="11px Arial";ctx.fillText("GATE",x*sx-14,675*sy);
+}
+
+function drawAirport(){
+ // Apron
+ ctx.fillStyle="#111919";
+ ctx.fillRect(X(70),Y(555),X(850),Y(155));
+ ctx.strokeStyle="#515b5b";
+ ctx.lineWidth=1;
+ ctx.strokeRect(X(70),Y(555),X(850),Y(155));
+
+ // Gate stands
+ for(const x of [180,390,600]){
+  drawLine([[x,555],[x,650]],"#5a6666",1);
+  ctx.fillStyle="#aaa";
+  ctx.font="11px Arial";
+  ctx.fillText("GATE",X(x-14),Y(675));
  }
+
  // Taxiway Alpha
- drawLine([P(80,510),P(930,510)],"#717c7c",15);
- drawLine([P(80,510),P(930,510)],"#d1b95a",1,[12,10]);
- // Connector Bravo
- drawLine([P(820,510),P(820,120)],"#717c7c",15);
- drawLine([P(820,510),P(820,120)],"#d1b95a",1,[12,10]);
- // North taxiway
- drawLine([P(820,120),P(1020,120)],"#717c7c",15);
- drawLine([P(820,120),P(1020,120)],"#d1b95a",1,[12,10]);
+ drawLine([[80,510],[930,510]],"#717c7c",15);
+ drawLine([[80,510],[930,510]],"#d1b95a",1,[12,10]);
+
+ // Taxiway Bravo
+ drawLine([[820,510],[820,120]],"#717c7c",15);
+ drawLine([[820,510],[820,120]],"#d1b95a",1,[12,10]);
+
+ // Northern taxiway
+ drawLine([[820,120],[1020,120]],"#717c7c",15);
+ drawLine([[820,120],[820,300]],"#717c7c",15);
+
  // Runway
- ctx.fillStyle="#282e2e";ctx.fillRect(90*sx,175*sy,920*sx,125*sy);
- ctx.strokeStyle="#929b9b";ctx.lineWidth=2;ctx.strokeRect(90*sx,175*sy,920*sx,125*sy);
- drawLine([P(110,237),P(990,237)],"#aab1b1",1,[22,18]);
- ctx.fillStyle="#ccc";ctx.font="bold 14px Arial";ctx.fillText("09",105*sx,220*sy);ctx.fillText("27",975*sx,220*sy);
- // Runway crossing connection
- drawLine([P(820,300),P(820,510)],"#717c7c",15);
- drawLine([P(820,300),P(820,510)],"#d1b95a",1,[12,10]);
- // Hold short marking
- drawLine([P(790,335),P(850,335)],"#e3a82b",3);
- ctx.fillStyle="#e3a82b";ctx.font="bold 11px Arial";ctx.fillText("HOLD SHORT",860*sx,339*sy);
- ctx.fillStyle="#aaa";ctx.font="11px Arial";
- ctx.fillText("TAXIWAY ALPHA",140*sx,495*sy);
- ctx.fillText("TAXIWAY BRAVO",835*sx,450*sy);
- ctx.fillText("RUNWAY 09 / 27",440*sx,165*sy);
- ctx.fillText("APRON",95*sx,580*sy);
+ ctx.fillStyle="#282e2e";
+ ctx.fillRect(X(90),Y(175),X(920),Y(125));
+ ctx.strokeStyle="#929b9b";
+ ctx.lineWidth=2;
+ ctx.strokeRect(X(90),Y(175),X(920),Y(125));
+ drawLine([[110,237],[990,237]],"#aab1b1",1,[22,18]);
+
+ ctx.fillStyle="#ccc";
+ ctx.font="bold 14px Arial";
+ ctx.fillText("09",X(105),Y(220));
+ ctx.fillText("27",X(975),Y(220));
+
+ // Hold-short marking
+ drawLine([[790,335],[850,335]],"#e3a82b",3);
+ ctx.fillStyle="#e3a82b";
+ ctx.font="bold 11px Arial";
+ ctx.fillText("HOLD SHORT",X(860),Y(339));
+
+ ctx.fillStyle="#aaa";
+ ctx.font="11px Arial";
+ ctx.fillText("TAXIWAY ALPHA",X(140),Y(495));
+ ctx.fillText("TAXIWAY BRAVO",X(835),Y(450));
+ ctx.fillText("RUNWAY 09 / 27",X(440),Y(165));
+ ctx.fillText("APRON",X(95),Y(580));
+
  if(runwayOwner){
-  ctx.fillStyle="#ffbb44";ctx.fillText("RUNWAY OCCUPIED: "+runwayOwner,420*sx,320*sy);
+  ctx.fillStyle="#ffbb44";
+  ctx.font="bold 11px Arial";
+  ctx.fillText("RUNWAY OCCUPIED: "+runwayOwner,X(420),Y(320));
  }
- // aircraft routes
+}
+
+function drawAircraftRoutes(){
  for(const p of planes){
-  if(p.route.length){
-   ctx.beginPath();ctx.moveTo(p.x*sx,p.y*sy);
-   p.route.forEach(q=>ctx.lineTo(q.x*sx,q.y*sy));
-   ctx.strokeStyle=p===selected?"#00d9ed":"#00a64c";ctx.lineWidth=p===selected?2:1.5;ctx.stroke();
-  }
+  if(!p.route.length)continue;
+  ctx.beginPath();
+  ctx.moveTo(X(p.x),Y(p.y));
+  p.route.forEach(point=>ctx.lineTo(X(point.x),Y(point.y)));
+  ctx.strokeStyle=p===selected?"#00d9ed":"#00a64c";
+  ctx.lineWidth=p===selected?2:1.5;
+  ctx.stroke();
  }
- // aircraft symbols and labels
+}
+
+function drawAircraft(){
  for(const p of planes){
-  const x=p.x*sx,y=p.y*sy;
-  ctx.save();ctx.translate(x,y);
+  if(p.phase==="departed")continue;
+
+  const x=X(p.x),y=Y(p.y);
   let angle=0;
-  if(p.route.length)angle=Math.atan2(p.route[0].y-p.y,p.route[0].x-p.x);
+  if(p.route.length){
+   angle=Math.atan2(p.route[0].y-p.y,p.route[0].x-p.x);
+  }
+
+  ctx.save();
+  ctx.translate(x,y);
   ctx.rotate(angle);
   ctx.fillStyle=p===selected?"#ffe45c":"#00cce3";
   ctx.fillRect(-7,-7,14,14);
-  ctx.strokeStyle=p===selected?"#ffe45c":"#00cce3";ctx.strokeRect(-9,-9,18,18);
+  ctx.strokeStyle=p===selected?"#ffe45c":"#00cce3";
+  ctx.lineWidth=1.5;
+  ctx.strokeRect(-9,-9,18,18);
   ctx.restore();
+
   let lx=x+13,ly=y-37;
-  if(lx+100>W)lx=x-105;
-  ctx.fillStyle="#020707";ctx.fillRect(lx,ly,96,31);
-  ctx.strokeStyle=p===selected?"#ffe45c":"#00a9c4";ctx.strokeRect(lx,ly,96,31);
-  ctx.fillStyle="#dceeee";ctx.font="bold 12px Arial";ctx.fillText(p.id,lx+5,ly+12);
-  ctx.font="10px Arial";ctx.fillStyle="#9edce2";ctx.fillText(p.status,lx+5,ly+24);
+  if(lx+96>W)lx=x-105;
+  if(ly<42)ly=y+16;
+
+  ctx.fillStyle="#020707";
+  ctx.fillRect(lx,ly,96,31);
+  ctx.strokeStyle=p===selected?"#ffe45c":"#00a9c4";
+  ctx.strokeRect(lx,ly,96,31);
+  ctx.fillStyle="#dceeee";
+  ctx.font="bold 12px Arial";
+  ctx.fillText(p.id,lx+5,ly+12);
+  ctx.font="10px Arial";
+  ctx.fillStyle="#9edce2";
+  ctx.fillText(p.status,lx+5,ly+24);
  }
 }
-function render(){
- drawMap();requestAnimationFrame(render);
+
+function drawMap(){
+ ctx.fillStyle="#030606";
+ ctx.fillRect(0,0,W,H);
+
+ // Grid
+ ctx.strokeStyle="#101818";
+ ctx.lineWidth=1;
+ for(let x=0;x<W;x+=50){
+  ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+ }
+ for(let y=0;y<H;y+=50){
+  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+ }
+
+ drawTerrain();
+ drawAirport();
+ drawAircraftRoutes();
+ drawAircraft();
 }
-render();
+
+function renderMap(){
+ drawMap();
+ requestAnimationFrame(renderMap);
+}
 
 function renderTraffic(){
- const box=document.getElementById("traffic");box.innerHTML="";
+ const box=document.getElementById("traffic");
+ box.innerHTML="";
+
  planes.forEach(p=>{
-  const el=document.createElement("div");el.className="plane"+(p===selected?" selected":"");
+  const el=document.createElement("div");
+  el.className="plane"+(p===selected?" selected":"");
   el.innerHTML="<strong>"+p.id+"</strong><small>"+p.type+" · "+p.status+"</small>";
-  el.onclick=()=>selectPlane(p);box.appendChild(el);
+  el.onclick=()=>selectPlane(p);
+  box.appendChild(el);
  });
- document.getElementById("traffic-label").textContent="TRAFFIC "+planes.length;
+
+ document.getElementById("traffic-label").textContent="TRAFFIC "+planes.filter(p=>p.phase!=="departed").length;
 }
+
 function renderDetails(){
  const d=document.getElementById("details");
- if(!selected){d.textContent="Select an aircraft on the list or radar.";return}
- d.innerHTML="<b>"+selected.id+"</b><br>Aircraft: "+selected.type+
- "<br>Gate: "+selected.gate+"<br>Status: "+selected.status+
+ if(!selected){
+  d.textContent="Select an aircraft on the list or radar.";
+  return;
+ }
+
+ d.innerHTML="<b>"+selected.id+"</b><br>"+
+ "Aircraft: "+selected.type+
+ "<br>Gate: "+selected.gate+
+ "<br>Status: "+selected.status+
  "<br>Position: "+Math.round(selected.x)+", "+Math.round(selected.y);
 }
+
 function selectPlane(p){
- selected=p;renderTraffic();renderDetails();notify("Selected "+p.id);
+ selected=p;
+ renderTraffic();
+ renderDetails();
+ notify("Selected "+p.id);
 }
+
 canvas.addEventListener("click",e=>{
- const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*1100/W,y=(e.clientY-r.top)*760/H;
- let nearest=null,dist=25;
- planes.forEach(p=>{let d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;nearest=p}});
+ const rect=canvas.getBoundingClientRect();
+ const x=(e.clientX-rect.left)*1100/W;
+ const y=(e.clientY-rect.top)*760/H;
+ let nearest=null;
+ let distance=25;
+
+ planes.forEach(p=>{
+  if(p.phase==="departed")return;
+  const d=Math.hypot(p.x-x,p.y-y);
+  if(d<distance){distance=d;nearest=p}
+ });
  if(nearest)selectPlane(nearest);
 });
 
 function setRoute(p,points,status,phase){
  p.route=points.map(q=>({x:q[0],y:q[1]}));
- p.status=status;p.phase=phase;
+ p.status=status;
+ p.phase=phase;
+ p.paused=false;
 }
-function issue(cmd){
+
+function issue(command){
  if(!selected){notify("Select an aircraft first");return}
  const p=selected;
- if(cmd==="taxi"){
-  if(p.phase!=="gate"){notify("Aircraft is not at a gate");return}
+
+ if(command==="taxi"){
+  if(p.phase!=="gate"&&p.phase!=="parked"){
+   notify("Aircraft is not at a gate or parking stand");
+   return;
+  }
+  if(p.phase==="parked"){
+   notify("Aircraft has completed taxiing");
+   return;
+  }
   setRoute(p,[[p.x,510],[820,510],[820,353]],"Taxiing to holding point","taxi");
-  log(p.id+", taxi to holding point runway 09 via Alpha, Bravo");
+  log(p.id+", taxi to holding point runway 09 via Alpha and Bravo");
  }
- else if(cmd==="hold"){
-  if(p.phase==="crossing"||p.phase==="takeoff"){notify("Aircraft is on the runway route; wait for it to clear");return}
-  p.route=[];p.status="Holding position";p.phase="hold";log(p.id+", hold position");
+
+ else if(command==="hold"){
+  if(p.phase==="crossing"||p.phase==="takeoff"||p.phase==="lineup"){
+   notify("Aircraft is using the runway. Wait until clear.");
+   return;
+  }
+  p.paused=true;
+  p.status="Holding position";
+  log(p.id+", hold position");
  }
- else if(cmd==="cross"){
-  if(p.phase!=="holdshort"){notify("Aircraft must be holding short first");return}
-  if(runwayOwner){notify("Runway occupied by "+runwayOwner);log(p.id+", hold position, runway occupied");return}
+
+ else if(command==="release"){
+  if(!p.paused){notify("Aircraft is not holding");return}
+  p.paused=false;
+  p.status="Continuing";
+  log(p.id+", continue");
+ }
+
+ else if(command==="cross"){
+  if(p.phase!=="holdshort"){
+   notify("Aircraft must be holding short first");
+   return;
+  }
+  if(runwayOwner){
+   notify("Runway occupied by "+runwayOwner);
+   log(p.id+", hold position, runway occupied");
+   return;
+  }
   runwayOwner=p.id;
-  setRoute(p,[[820,300],[820,120],[930,120]],"Crossing runway","crossing");
+  setRoute(p,[[820,300],[820,120]],"Crossing runway","crossing");
   log(p.id+", cross runway 09, report clear");
  }
- else if(cmd==="lineup"){
-  if(p.phase!=="holdshort"){notify("Aircraft must be holding short first");return}
-  if(runwayOwner){notify("Runway occupied by "+runwayOwner);return}
+
+ else if(command==="lineup"){
+  if(p.phase!=="holdshort"){
+   notify("Aircraft must be holding short first");
+   return;
+  }
+  if(runwayOwner){
+   notify("Runway occupied by "+runwayOwner);
+   return;
+  }
   runwayOwner=p.id;
   setRoute(p,[[820,300],[820,237],[930,237]],"Lining up runway 09","lineup");
   log(p.id+", line up and wait runway 09");
  }
- else if(cmd==="takeoff"){
-  if(p.phase!=="linedup"||runwayOwner!==p.id){notify("Aircraft must be lined up and waiting");return}
+
+ else if(command==="takeoff"){
+  if(p.phase!=="linedup"||runwayOwner!==p.id){
+   notify("Aircraft must be lined up and waiting");
+   return;
+  }
   setRoute(p,[[1080,237]],"Taking off","takeoff");
   log(p.id+", runway 09, cleared for takeoff");
  }
- else if(cmd==="continue"){
-  if(p.phase!=="crossed"){notify("No completed crossing to continue from");return}
+
+ else if(command==="continue"){
+  if(p.phase!=="crossed"){
+   notify("Aircraft must complete its runway crossing first");
+   return;
+  }
   setRoute(p,[[930,120],[1020,120]],"Taxiing north","taxiNorth");
   log(p.id+", continue taxi north");
  }
- else if(cmd==="release"){
-  if(p.phase!=="hold"){notify("Aircraft is not holding");return}
-  setRoute(p,[[820,510],[820,353]],"Taxiing to holding point","taxi");
-  log(p.id+", continue taxi to holding point");
+
+ else if(command==="cancel"){
+  if(runwayOwner===p.id){
+   notify("Cannot cancel while occupying the runway");
+   return;
+  }
+  p.route=[];
+  p.paused=false;
+  p.status="Route cancelled";
+  p.phase="stopped";
+  log(p.id+", route cancelled");
  }
- else if(cmd==="cancel"){
-  if(runwayOwner===p.id){notify("Cannot cancel while occupying runway");return}
-  p.route=[];p.status="Route cancelled";p.phase="stopped";log(p.id+", route cancelled");
- }
- renderTraffic();renderDetails();
+
+ renderTraffic();
+ renderDetails();
 }
 
 function movePlanes(dt){
  for(const p of planes){
-  if(!p.route.length)continue;
-  const target=p.route[0],dx=target.x-p.x,dy=target.y-p.y;
-  const dist=Math.hypot(dx,dy);
-  let speed= p.phase==="takeoff"?190:48;
-  if(dist<speed*dt){
-   p.x=target.x;p.y=target.y;p.route.shift();
-  }else{
-   p.x+=dx/dist*speed*dt;p.y+=dy/dist*speed*dt;
-  }
-  if(!p.route.length){
-   if(p.phase==="taxi"){
-    p.phase="holdshort";p.status="Holding short RWY 09";
-    log(p.id+", holding short runway 09");
-   }else if(p.phase==="crossing"){
-    runwayOwner=null;p.phase="crossed";p.status="Runway crossed";
-    log(p.id+", runway clear");
-   }else if(p.phase==="lineup"){
-    p.phase="linedup";p.status="Lined up and waiting";
-    log(p.id+", lined up and waiting runway 09");
-   }else if(p.phase==="takeoff"){
-    runwayOwner=null;p.phase="departed";p.status="Departed";
-    log(p.id+", airborne, contact departure");
-   }else if(p.phase==="taxiNorth"){
-    p.phase="parked";p.status="Taxi complete";log(p.id+", taxi complete");
+  if(!p.route.length||p.paused)continue;
+
+  const target=p.route[0];
+  const dx=target.x-p.x;
+  const dy=target.y-p.y;
+  const distance=Math.hypot(dx,dy);
+  const speed=p.phase==="takeoff"?185:43;
+  const step=Math.min(distance,speed*dt);
+  const nx=p.x+(dx/(distance||1))*step;
+  const ny=p.y+(dy/(distance||1))*step;
+
+  // Keep aircraft separated on shared taxiways.
+  let blocked=false;
+  if(p.phase!=="takeoff"){
+   for(const other of planes){
+    if(other===p||other.phase==="departed")continue;
+    const gap=Math.hypot(nx-other.x,ny-other.y);
+    if(gap<27){blocked=true;break}
    }
-   renderTraffic();if(p===selected)renderDetails();
   }
+
+  if(blocked)continue;
+
+  p.x=nx;
+  p.y=ny;
+
+  if(distance<=speed*dt+0.01){
+   p.x=target.x;
+   p.y=target.y;
+   p.route.shift();
+  }
+
+  if(!p.route.length)finishRoute(p);
  }
 }
-function loop(now){
- const dt=Math.min((now-last)/1000,.05);last=now;
- movePlanes(dt);simTime+=dt;
- const t=Math.floor(simTime),h=String(Math.floor(t/3600)).padStart(2,"0"),m=String(Math.floor(t/60)%60).padStart(2,"0"),s=String(t%60).padStart(2,"0");
+
+function finishRoute(p){
+ if(p.phase==="taxi"){
+  p.phase="holdshort";
+  p.status="Holding short RWY 09";
+  log(p.id+", holding short runway 09");
+ }
+ else if(p.phase==="crossing"){
+  runwayOwner=null;
+  p.phase="crossed";
+  p.status="Runway crossed";
+  log(p.id+", runway clear");
+  notify(p.id+" has crossed the runway");
+ }
+ else if(p.phase==="lineup"){
+  p.phase="linedup";
+  p.status="Lined up and waiting";
+  log(p.id+", lined up and waiting runway 09");
+  notify(p.id+" lined up");
+ }
+ else if(p.phase==="takeoff"){
+  runwayOwner=null;
+  p.phase="departed";
+  p.status="Departed";
+  log(p.id+", airborne, contact departure");
+  notify(p.id+" departed");
+ }
+ else if(p.phase==="taxiNorth"){
+  p.phase="parked";
+  p.status="Taxi complete";
+  log(p.id+", taxi complete");
+  notify(p.id+" taxi complete");
+ }
+
+ renderTraffic();
+ if(p===selected)renderDetails();
+}
+
+function updateClock(){
+ simTime++;
+ const h=String(Math.floor(simTime/3600)).padStart(2,"0");
+ const m=String(Math.floor(simTime/60)%60).padStart(2,"0");
+ const s=String(simTime%60).padStart(2,"0");
  document.getElementById("clock").textContent=h+":"+m+":"+s;
- document.getElementById("runway-label").textContent=runwayOwner?"RWY 09 OCCUPIED":"RWY 09 AVAILABLE";
+}
+
+function loop(now){
+ const dt=Math.min((now-lastFrame)/1000,.05);
+ lastFrame=now;
+ movePlanes(dt);
  requestAnimationFrame(loop);
 }
-renderTraffic();renderDetails();
+
+renderTraffic();
+renderDetails();
 log("Ground control simulator initialized");
 log("Select an aircraft to issue instructions");
+renderMap();
+setInterval(updateClock,1000);
 requestAnimationFrame(loop);
 </script>
 </body>
