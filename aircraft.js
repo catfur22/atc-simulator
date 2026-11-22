@@ -52,7 +52,9 @@ function assignRoute(plane, points, finalStatus) {
 
 function updateAircraft(dt) {
     aircraft.forEach(plane => {
-        if (plane.route.length === 0) return;
+        if (!plane.route || plane.route.length === 0) {
+            return;
+        }
 
         const target = plane.route[0];
 
@@ -77,8 +79,8 @@ function updateAircraft(dt) {
         const speed = 65;
         const movement = Math.min(speed * dt, distance);
 
-        plane.x += dx / distance * movement;
-        plane.y += dy / distance * movement;
+        plane.x += (dx / distance) * movement;
+        plane.y += (dy / distance) * movement;
 
         plane.heading = Math.atan2(dy, dx) + Math.PI / 2;
         plane.speed = 15;
@@ -92,6 +94,8 @@ function drawAircraft(ctx, plane, selected) {
     ctx.rotate(plane.heading);
 
     ctx.fillStyle = plane.color;
+
+    // Aircraft body
     ctx.beginPath();
     ctx.moveTo(0, -15);
     ctx.lineTo(5, 8);
@@ -100,16 +104,22 @@ function drawAircraft(ctx, plane, selected) {
     ctx.closePath();
     ctx.fill();
 
+    // Wings
+    ctx.fillRect(-13, -3, 26, 4);
+
     ctx.restore();
 
+    // Selection circle
     if (selected) {
         ctx.strokeStyle = "#ffff00";
         ctx.lineWidth = 2;
+
         ctx.beginPath();
         ctx.arc(plane.x, plane.y, 22, 0, Math.PI * 2);
         ctx.stroke();
     }
 
+    // Callsign
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 13px Arial";
     ctx.fillText(plane.id, plane.x + 15, plane.y - 12);
