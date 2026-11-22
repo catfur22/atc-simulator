@@ -1,72 +1,490 @@
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Airport Ground Control</title>
-        <link rel="stylesheet" href="style.css"> 
-    </head>
-    <body>
-        <header>
-            <div>
-                <h1>Ground Control</h1>
-                <small>GROUND SIM // GROUND FREQUENCY 121.700</small>
-            </div>
-            <div id="clock">00:00:00</div>
-        </header>
-        
-        <main>
-            <section class="map-section">
-                <div class="section-heading">
-                    AIRPORT SURFACE RADAR
-                    <span>LIVE</span>
-                </div>
-                <canvas id="gameCanvas" width="1000" height="650"></canvas>
-                <div class="map-legend">
-                    <span>✈ Aircraft</span>
-                    <span>┅ Taxiway</span>
-                    <span>═ Runway</span>
-                    <span>● Selected Aircraft</span>
-                </div>
-            </section>
-            
-            <aside>
-                <section class="panel">
-                    <h2>ACTIVE AIRCRAFT</h2>
-                    <div id="aircraftList"></div>
-                </section>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ground Control Simulator</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: #101820;
+    color: #e8eef5;
+    font-family: Arial, sans-serif;
+}
+header {
+    padding: 15px 22px;
+    background: #182633;
+    border-bottom: 1px solid #344657;
+    display: flex;
+    justify-content: space-between;
+}
+h1 { font-size: 21px; margin: 0; }
+main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 12px;
+    padding: 12px;
+}
+#gameCanvas {
+    width: 100%;
+    display: block;
+    background: #24362f;
+    border: 2px solid #52665b;
+    border-radius: 6px;
+}
+.panel {
+    background: #1b2935;
+    border: 1px solid #344657;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+h2 {
+    font-size: 14px;
+    color: #9dbbd2;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+}
+button {
+    background: #29465c;
+    color: white;
+    border: 1px solid #52718a;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin: 3px 0;
+    text-align: left;
+}
+button:hover { background: #38617d; }
+button.selected { background: #28634e; border-color: #6ac99d; }
+.aircraft-entry small {
+    display: block;
+    color: #b6c7d5;
+    margin-top: 4px;
+}
+.command-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+.command-grid button { text-align: center; }
+#radioLog {
+    height: 250px;
+    overflow-y: auto;
+    font-size: 12px;
+}
+.radio-message {
+    padding: 7px;
+    margin-bottom: 5px;
+    background: #253746;
+    border-left: 3px solid #78a9d1;
+    overflow-wrap: anywhere;
+}
+.radio-message.ground { border-color: #66d49a; }
+.radio-message.warning { border-color: #e5b85b; }
+#flightInfo { font-size: 13px; line-height: 1.6; }
+@media(max-width: 800px) {
+    main { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
 
-                <section class="panel">
-                    <h2>FLIGHT INFORMATION</h2>
-                    <div id="flight info">SELECT AN AIRCRAFT</div>
-                </section>
-                
-                <section class="panel">
-                    <h2>ATC COMMANDS</h2>
-                    <div id="commandButtons">
-                        <button data-command="taxi">TAXI TO RUNWAY 27</button>
-                        <button data-command="cross">CROSS RUNWAY 27</button>
-                        <button data-command="hold">HOLD POSITION</button>
-                        <button data-command="handoff">CONTACT TOWER</button>
-                    </div>
-                </section>
-                
-                <section class="panel">
-                    <h2>RADIO COMMUNICATIONS</h2>
-                    <div id="radioLog"></div>
-                </section>
-            </aside>
-        </main>
-        
-        <footer>
-            AIRPORT GROUND CONTROL SIMULATOR
-            <span>SIMULATION ONLY</span>
-        </footer>
-        
-        <script src="airport.js"></script>
-        <script src="aircraft.js"></script>
-        <script src="communications.js"></script>
-        <script src="atc.js"></script>
-        <script src="game.js"></script>
-    </body>
+<header>
+    <h1>GROUND CONTROL — ATC SIMULATOR</h1>
+    <strong id="clock">--:--:--</strong>
+</header>
+
+<main>
+    <section>
+        <canvas id="gameCanvas" width="1000" height="650"></canvas>
+        <div class="panel">
+            <h2>Radio Communications</h2>
+            <div id="radioLog"></div>
+        </div>
+    </section>
+
+    <aside>
+        <div class="panel">
+            <h2>Aircraft</h2>
+            <div id="aircraftList"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Flight Information</h2>
+            <div id="flightInfo">Select an aircraft.</div>
+        </div>
+
+        <div class="panel">
+            <h2>Ground Commands</h2>
+            <div class="command-grid">
+                <button data-command="taxi">Taxi</button>
+                <button data-command="hold">Hold</button>
+                <button data-command="cross">Cross runway</button>
+                <button data-command="handoff">Tower handoff</button>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<script>
+"use strict";
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const aircraft = [
+    {
+        id:"UAL204", airline:"UNITED", type:"B738",
+        x:150,y:530,color:"#65baff",heading:0,
+        speed:0,status:"At gate",route:[],targetStatus:""
+    },
+    {
+        id:"DAL512", airline:"DELTA", type:"A320",
+        x:350,y:530,color:"#ff8585",heading:0,
+        speed:0,status:"At gate",route:[],targetStatus:""
+    },
+    {
+        id:"SWA831", airline:"SOUTHWEST", type:"B737",
+        x:550,y:530,color:"#f4c367",heading:0,
+        speed:0,status:"At gate",route:[],targetStatus:""
+    }
+];
+
+let selectedAircraft = null;
+let lastFrame = 0;
+let lastListUpdate = 0;
+
+function addRadioMessage(message,type="pilot") {
+    const log = document.getElementById("radioLog");
+    const entry = document.createElement("div");
+    entry.className = "radio-message " + type;
+    entry.textContent = message;
+    log.prepend(entry);
+    while(log.children.length > 30) log.lastChild.remove();
+}
+
+function pilotCall(plane,message) {
+    addRadioMessage(plane.id + ": " + message,"pilot");
+}
+
+function groundCall(plane,message) {
+    addRadioMessage("GROUND: " + plane.id + ", " + message,"ground");
+}
+
+function drawAirport() {
+    ctx.fillStyle = "#24362f";
+    ctx.fillRect(0,0,1000,650);
+
+    // Runway
+    ctx.fillStyle = "#353a40";
+    ctx.fillRect(60,170,880,100);
+    ctx.strokeStyle = "#aeb5b5";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(60,170,880,100);
+
+    ctx.strokeStyle = "#eeeeee";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([25,20]);
+    ctx.beginPath();
+    ctx.moveTo(80,220);
+    ctx.lineTo(920,220);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 23px Arial";
+    ctx.fillText("27",80,205);
+    ctx.fillText("09",890,205);
+
+    // Taxiway Alpha
+    ctx.strokeStyle = "#a99a63";
+    ctx.lineWidth = 24;
+    ctx.beginPath();
+    ctx.moveTo(100,430);
+    ctx.lineTo(900,430);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#e4d9a3";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([12,12]);
+    ctx.beginPath();
+    ctx.moveTo(100,430);
+    ctx.lineTo(900,430);
+    ctx.stroke();
+
+    // Taxiway Bravo
+    ctx.beginPath();
+    ctx.moveTo(700,430);
+    ctx.lineTo(700,270);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Hold short marking
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(680,290);
+    ctx.lineTo(720,290);
+    ctx.stroke();
+
+    // Gates
+    [150,350,550].forEach((x,i)=>{
+        ctx.strokeStyle = "#b6c5ba";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x,530);
+        ctx.lineTo(x,430);
+        ctx.stroke();
+
+        ctx.fillStyle = "white";
+        ctx.font = "14px Arial";
+        ctx.fillText("GATE "+(i+1),x-25,555);
+    });
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 15px Arial";
+    ctx.fillText("TAXIWAY ALPHA",350,465);
+    ctx.fillText("TAXIWAY BRAVO",715,315);
+    ctx.fillText("HOLD SHORT",730,290);
+}
+
+function drawAircraft(plane,selected) {
+    ctx.save();
+    ctx.translate(plane.x,plane.y);
+    ctx.rotate(plane.heading);
+
+    ctx.fillStyle = plane.color;
+    ctx.beginPath();
+    ctx.moveTo(0,-17);
+    ctx.lineTo(5,8);
+    ctx.lineTo(0,5);
+    ctx.lineTo(-5,8);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillRect(-14,-3,28,5);
+    ctx.restore();
+
+    if(selected) {
+        ctx.strokeStyle = "#ffff00";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(plane.x,plane.y,23,0,Math.PI*2);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 13px Arial";
+    ctx.fillText(plane.id,plane.x+15,plane.y-12);
+}
+
+function assignRoute(plane,points,finalStatus) {
+    plane.route = points.map(p=>({x:p.x,y:p.y}));
+    plane.targetStatus = finalStatus;
+}
+
+function updateAircraft(dt) {
+    aircraft.forEach(plane=>{
+        if(!plane.route.length) return;
+
+        const target = plane.route[0];
+        const dx = target.x-plane.x;
+        const dy = target.y-plane.y;
+        const distance = Math.hypot(dx,dy);
+
+        if(distance < 3) {
+            plane.x = target.x;
+            plane.y = target.y;
+            plane.route.shift();
+
+            if(!plane.route.length) {
+                plane.status = plane.targetStatus;
+                plane.speed = 0;
+                addRadioMessage(plane.id + " has reached its assigned position.");
+            }
+            return;
+        }
+
+        const movement = Math.min(65*dt,distance);
+        plane.x += dx/distance*movement;
+        plane.y += dy/distance*movement;
+        plane.heading = Math.atan2(dy,dx)+Math.PI/2;
+        plane.speed = 15;
+    });
+}
+
+function renderAircraftList() {
+    const list = document.getElementById("aircraftList");
+    list.innerHTML = "";
+
+    aircraft.forEach(plane=>{
+        const button = document.createElement("button");
+        button.className = "aircraft-entry";
+        if(selectedAircraft===plane) button.classList.add("selected");
+
+        const strong = document.createElement("strong");
+        strong.textContent = plane.id;
+        const small = document.createElement("small");
+        small.textContent = plane.type+" · "+plane.status;
+
+        button.append(strong,small);
+        button.addEventListener("click",()=>selectAircraft(plane.id));
+        list.appendChild(button);
+    });
+}
+
+function selectAircraft(id) {
+    selectedAircraft = aircraft.find(p=>p.id===id)||null;
+    renderAircraftList();
+    renderFlightInfo();
+}
+
+function renderFlightInfo() {
+    const info = document.getElementById("flightInfo");
+
+    if(!selectedAircraft) {
+        info.textContent = "Select an aircraft.";
+        return;
+    }
+
+    const p = selectedAircraft;
+    info.innerHTML =
+        "<strong>"+p.id+"</strong><br>"+
+        "Airline: "+p.airline+"<br>"+
+        "Aircraft: "+p.type+"<br>"+
+        "Position: "+Math.round(p.x)+", "+Math.round(p.y)+"<br>"+
+        "Status: "+p.status+"<br>"+
+        "Ground speed: "+p.speed+" knots";
+}
+
+function issueATCCommand(plane,command) {
+    if(!plane) {
+        addRadioMessage("Select an aircraft first.","warning");
+        return;
+    }
+
+    if(command==="taxi") {
+        if(plane.status!=="At gate") {
+            addRadioMessage("Aircraft is not at a gate.","warning");
+            return;
+        }
+
+        plane.status="Taxiing to runway 27";
+        assignRoute(plane,[
+            {x:plane.x,y:430},
+            {x:700,y:430},
+            {x:700,y:295}
+        ],"Holding short RWY 27");
+
+        groundCall(plane,"taxi to runway 27 via Alpha and Bravo, hold short of runway 27.");
+        setTimeout(()=>pilotCall(plane,"Taxi to runway 27 via Alpha and Bravo, hold short of runway 27."),500);
+    }
+
+    else if(command==="hold") {
+        if(plane.status==="At gate") {
+            addRadioMessage("Aircraft is still at the gate.","warning");
+            return;
+        }
+        plane.route=[];
+        plane.speed=0;
+        plane.status="Holding position";
+        groundCall(plane,"hold position.");
+        setTimeout(()=>pilotCall(plane,"Holding position."),500);
+    }
+
+    else if(command==="cross") {
+        if(plane.status!=="Holding short RWY 27") {
+            addRadioMessage("Aircraft must be holding short of runway 27 first.","warning");
+            return;
+        }
+
+        plane.status="Crossing runway 27";
+        assignRoute(plane,[
+            {x:700,y:150}
+        ],"Runway crossed");
+
+        groundCall(plane,"cross runway 27.");
+        setTimeout(()=>pilotCall(plane,"Cross runway 27."),500);
+    }
+
+    else if(command==="handoff") {
+        if(plane.status!=="Runway crossed") {
+            addRadioMessage("Aircraft must complete its runway crossing first.","warning");
+            return;
+        }
+
+        plane.status="Handed off to Tower";
+        groundCall(plane,"contact Tower.");
+        setTimeout(()=>pilotCall(plane,"Contacting Tower."),500);
+    }
+
+    renderAircraftList();
+    renderFlightInfo();
+}
+
+document.querySelectorAll("[data-command]").forEach(button=>{
+    button.addEventListener("click",()=>{
+        issueATCCommand(selectedAircraft,button.dataset.command);
+    });
+});
+
+canvas.addEventListener("click",event=>{
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX-rect.left)*canvas.width/rect.width;
+    const y = (event.clientY-rect.top)*canvas.height/rect.height;
+
+    let closest = null;
+    let closestDistance = 30;
+
+    aircraft.forEach(plane=>{
+        const distance = Math.hypot(plane.x-x,plane.y-y);
+        if(distance<closestDistance) {
+            closest=plane;
+            closestDistance=distance;
+        }
+    });
+
+    if(closest) selectAircraft(closest.id);
+});
+
+function gameLoop(timestamp) {
+    const dt = lastFrame ? Math.min((timestamp-lastFrame)/1000,0.05) : 0;
+    lastFrame = timestamp;
+
+    updateAircraft(dt);
+    drawAirport();
+    aircraft.forEach(p=>drawAircraft(p,p===selectedAircraft));
+
+    if(timestamp-lastListUpdate>500) {
+        renderAircraftList();
+        if(selectedAircraft) renderFlightInfo();
+        lastListUpdate=timestamp;
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+    renderAircraftList();
+    renderFlightInfo();
+
+    aircraft.forEach(p=>pilotCall(p,"Ground, requesting taxi."));
+    document.getElementById("clock").textContent =
+        new Date().toLocaleTimeString();
+
+    setInterval(()=>{
+        document.getElementById("clock").textContent =
+            new Date().toLocaleTimeString();
+    },1000);
+
+    requestAnimationFrame(gameLoop);
+}
+
+startGame();
+</script>
+</body>
 </html>
